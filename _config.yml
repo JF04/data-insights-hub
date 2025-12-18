@@ -14,35 +14,35 @@ timezone: "America/Toronto"
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Chirpy # the main title
+title: JF's homepage
 
-tagline: A text-focused Jekyll theme # it will display as the subtitle
+tagline: "Where I drop notes, examples, and experiments in analytics and coding."
 
 description: >- # used by seo meta and the atom feed
-  A minimal, responsive and feature-rich Jekyll theme for technical writing.
+  Notes and examples on data technologies.
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
-url: "https://JF04.github.io"
+url: "https://jf04.github.io"
 
 github:
-  username: github_username # change to your GitHub username
+  username: JF04 # change to your GitHub username
 
 twitter:
-  username: twitter_username # change to your Twitter username
+  username: "" # change to your Twitter username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: your_full_name
-  email: example@domain.com # change to your email address
+  name: JF
+  email: "" # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/username # change to your Twitter homepage
-    - https://github.com/username # change to your GitHub homepage
+    #- https://twitter.com/username # change to your Twitter homepage
+    - https://github.com/JF04 # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
-    # - https://www.linkedin.com/in/username
+    - https://www.linkedin.com/in/jflegault001
 
 # Site Verification Settings
 webmaster_verifications:
@@ -109,7 +109,7 @@ toc: true
 
 comments:
   # Global switch for the post-comment system. Keeping it empty means disabled.
-  provider: # [disqus | utterances | giscus]
+  provider: giscus # [disqus | utterances | giscus]
   # The provider options are as follows:
   disqus:
     shortname: # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
@@ -119,15 +119,15 @@ comments:
     issue_term: # < url | pathname | title | ...>
   # Giscus options › https://giscus.app
   giscus:
-    repo: # <gh-username>/<repo>
-    repo_id:
-    category:
-    category_id:
+    repo: "JF04/data-insights-hub" # <gh-username>/<repo>
+    repo_id: "R_kgDOPdBvuA"
+    category: "General"
+    category_id: "DIC_kwDOPdBvuM4Cz8ml"
     mapping: # optional, default to 'pathname'
     strict: # optional, default to '0'
-    input_position: # optional, default to 'bottom'
-    lang: # optional, default to the value of `site.lang`
-    reactions_enabled: # optional, default to the value of `1`
+    input_position: "bottom" # optional, default to 'bottom'
+    lang: "en" # optional, default to the value of `site.lang`
+    reactions_enabled: "1" # optional, default to the value of `1`
 
 # Self-hosted static assets, optional › https://github.com/cotes2020/chirpy-static-assets
 assets:
