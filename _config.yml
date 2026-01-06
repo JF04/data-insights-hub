@@ -14,12 +14,12 @@ timezone: "America/Toronto"
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: JF's homepage
+title: Data Insights Hub
 
 tagline: "Where I drop notes, examples, and experiments in analytics and coding."
 
 description: >- # used by seo meta and the atom feed
-  Notes and examples on data technologies.
+  A practitioner’s notebook on data platforms with a strong SAP HANA focus.
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
@@ -28,14 +28,14 @@ url: "https://jf04.github.io"
 github:
   username: JF04 # change to your GitHub username
 
-twitter:
-  username: "" # change to your Twitter username
+#twitter:
+#  username: "" # change to your Twitter username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: JF
-  email: "" # change to your email address
+#  email: "" # change to your email address
   links:
     # The first element serves as the copyright owner's link
     #- https://twitter.com/username # change to your Twitter homepage
@@ -61,7 +61,7 @@ analytics:
   google:
     id: # fill in your Google Analytics ID
   goatcounter:
-    id: # fill in your GoatCounter ID
+    id: data-insights-hub
   umami:
     id: # fill in your Umami ID
     domain: # fill in your Umami domain
@@ -75,7 +75,7 @@ analytics:
 
 # Page views settings
 pageviews:
-  provider: # now only supports 'goatcounter'
+  provider: goatcounter # now only supports 'goatcounter'
 
 # Prefer color scheme setting.
 #
@@ -98,7 +98,7 @@ theme_mode: # [light | dark]
 cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar:
+avatar: /assets/img/jf.png
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.

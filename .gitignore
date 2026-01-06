@@ -25,3 +25,9 @@ package-lock.json
 # Misc
 _sass/vendors
 assets/js/dist
+
+
+# Custom
+archive/
+.vscode/
+_posts/*___*.md
