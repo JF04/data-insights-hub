@@ -1,6 +1,6 @@
 ---
-title: Query ADSO Field Metadata from XML_UI Using SQL (BW on HANA / BW/4HANA)
-categories: []
+title: Query ADSO Field Metadata from XML_UI Using SQL (BW on HANA & BW/4HANA)
+categories: [sap,bw,hana,sql]
 tags: [adso,blob,hcpr,RSOADSO,RSOHCPR,XML_UI]
 toc: true
 comments: true
@@ -32,18 +32,22 @@ When you need to audit field settings across dozens (or hundreds) of objects, op
 ## Handling BLOB fields (XML_UI → text)
 
 HANA stores `XML_UI` as binary (BLOB), but you can convert it to text using:
-* `TO_BINARY()` to normalize the input
-* `BINTOSTR()` to convert to a string you can search with regex
-This enables efficient location and extraction of required information using SQL text functions.
+* `TO_VARBINARY()` to convert the field to a _varbinary_ type (variable-length byte string), required for _bintostr()_
+* `BINTOSTR()` to convert to a string so you can search with regex. This enables efficient location and extraction of required information using SQL text functions.
 
-### Inventory ADSOs and estimate XML size / field count
+## Inventory ADSOs and estimate XML size / field count
+This is a fast way to:
+* spot objects with many fields,
+* find ADSOs with specific settings,
+* and quickly validate that your conversion works.
+
 
 ```sql
 -- Inventory ADSOs: XML length + rough field count
 with adso as (
     select 
         adsonm,
-        bintostr(to_binary(xml_ui)) as xml_ui_str,
+        bintostr(to_varbinary(xml_ui)) as xml_ui_str,
         length(xml_ui) as sizeof_xml_ui
     from [bwschema].rsoadso    
     where objvers='A'    
@@ -62,12 +66,6 @@ where 1=1
 ;
 ```
 
-This is a fast way to:
-* find unusually large definitions,
-* spot objects with many fields,
-* find ADSOs with specific settings,
-* and quickly validate that your conversion works.
-
 Using this query you can quickly identify ADSOs containing fields with specific characteristics or settings. For instance, you could search for ADSOs where some InfoObjects have the Master Data Check set to "No Master Data Check, No Reporting." Note, however, that this query only lists the relevant ADSOs. 
 
 
@@ -85,7 +83,7 @@ The approach below has 3 steps using CTE :
 with adso as (
     select 
         adsonm,
-        bintostr(to_binary(xml_ui)) as xml_ui_str
+        bintostr(to_varbinary(xml_ui)) as xml_ui_str
     from [bwschema].rsoadso -- update with your BW schema name
     where objvers='A'    
 --      AND adsonm LIKE '%%'   -- filter early for performance
@@ -140,10 +138,10 @@ CompositeProviders store a much richer model in `RSOHCPR-XML_UI`: joins, unions,
 with hcpr (
     select
         hcprnm,
-        bintostr(to_binary(xml_ui)) ,
-    FROM [bw_schema].rsohcpr
-    WHERE objvers = 'A'
-    --  AND hcprnm LIKE 'Z%'  -- filter early for performance
+        bintostr(to_varbinary(xml_ui)) ,
+    from [bw_schema].rsohcpr
+    where objvers = 'A'
+    --  and hcprnm LIKE 'Z%'  -- filter early for performance
 )
 
 select hcprnm,
@@ -163,22 +161,23 @@ where 1=1
 ```
 
 A pragmatic workflow for HCPRs:
-
 1. Start by searching for specific markers (e.g., “Join”, “Union”, mapping sections).
 2. Extract only the relevant fragments with regex.
 3. Iterate your patterns once you’ve identify the XML structure tags.
  
 
-> [!TIP]
+
 > When executing these SQL queries in HANA Database Explorer, ensure that the LOB byte limit setting is sufficiently high to return the complete *XML_UI* field value:
 > `Settings → SQL Console → Byte limit for Large Objects (LOBs)`
+{: .prompt-tip }
 
 ---
 
 ### References to some of the functions used
 
-* bintostr: [BINTOSTR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/d22ce32dd295101481d58e6625b2112d.html)
-* to_binary: [TO_BINARY Function (Data Type Conversion) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20eb65d4751910149a7dc10f93a24a75.html)
-* occurences_regexpr: [OCCURRENCES_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/4114b026f750429c8eeef9f54258edfa.html)
-* substring_regexpr: [SUBSTRING_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/a2f80e8ac8904c13959c69bfc3058f19.html)
-* series_generate_integer: [SERIES_GENERATE Function (Series Data) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/c8101037ad4344768db31e68e4d30eb4.html)
+[BINTOSTR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/d22ce32dd295101481d58e6625b2112d.html)  
+[TO_VARBINARY Function (Data Type Conversion) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20eb65d4751910149a7dc10f93a24a75.html)  
+[OCCURRENCES_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/4114b026f750429c8eeef9f54258edfa.html)  
+[SUBSTRING_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/a2f80e8ac8904c13959c69bfc3058f19.html)  
+[SERIES_GENERATE Function (Series Data) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/c8101037ad4344768db31e68e4d30eb4.html)  
+
