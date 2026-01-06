@@ -175,9 +175,9 @@ A pragmatic workflow for HCPRs:
 
 ### References to some of the functions used
 
-[BINTOSTR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/d22ce32dd295101481d58e6625b2112d.html)  
-[TO_VARBINARY Function (Data Type Conversion) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20eb65d4751910149a7dc10f93a24a75.html)  
-[OCCURRENCES_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/4114b026f750429c8eeef9f54258edfa.html)  
-[SUBSTRING_REGEXPR Function (String) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/a2f80e8ac8904c13959c69bfc3058f19.html)  
-[SERIES_GENERATE Function (Series Data) | SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/c8101037ad4344768db31e68e4d30eb4.html)  
+* [BINTOSTR Function (String) - SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/d22ce32dd295101481d58e6625b2112d.html)  
+* [TO_VARBINARY Function (Data Type Conversion) - SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20eb65d4751910149a7dc10f93a24a75.html)  
+* [OCCURRENCES_REGEXPR Function (String) - SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/4114b026f750429c8eeef9f54258edfa.html)  
+* [SUBSTRING_REGEXPR Function (String) - SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/a2f80e8ac8904c13959c69bfc3058f19.html)  
+* [SERIES_GENERATE Function (Series Data) - SAP Help Portal](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/c8101037ad4344768db31e68e4d30eb4.html)  
 
