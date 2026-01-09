@@ -132,15 +132,16 @@ where
 )
 
 -- 3) Extract attributes from each element
-select adsonm,
-	element_number,
---  elem, -- use for debugging to inspect the <element> block and locate the field attributes
-	substring_regexpr('name="([^"]+)"' in elem group 1) as elem_name,
-	substring_regexpr('dimension="#///([^"]+)§"' in elem group 1) as dimension,
-	coalesce(substring_regexpr('infoObjectName="([^"]+)"' in elem group 1), '') as infoobject,
-	substring_regexpr('sidDeterminationMode="([^"]+)"' in elem group 1) as sid_determination,
-	coalesce(substring_regexpr('objectType="([^"]+)"' in elem group 1),'FIELD') as object_type,
-	coalesce(substring_regexpr('conversionRoutine="([^"]+)' in elem group 1), '') as routine
+select 
+    adsonm,
+    element_number,
+    --  elem, -- use for debugging to inspect the <element> block and locate the field attributes
+    substring_regexpr('name="([^"]+)"' in elem group 1) as elem_name,
+    substring_regexpr('dimension="#///([^"]+)§"' in elem group 1) as dimension,
+    coalesce(substring_regexpr('infoObjectName="([^"]+)"' in elem group 1), '') as infoobject,
+    substring_regexpr('sidDeterminationMode="([^"]+)"' in elem group 1) as sid_determination,
+    coalesce(substring_regexpr('objectType="([^"]+)"' in elem group 1),'FIELD') as object_type,
+    coalesce(substring_regexpr('conversionRoutine="([^"]+)' in elem group 1), '') as routine
 from adso_fields
 where 1=1
 --  and elem like_regexpr 'conversionRoutine="([^"]+)' -- filter on fields containing a conversion routine
@@ -230,12 +231,12 @@ with hcpr as (
 
 select hcprnm,
     xml_ui_str,
-	occurrences_regexpr( '<viewNode xsi:type=.*?</viewNode>' in xml_ui_str ) as nodes, --number of nodes
+    occurrences_regexpr( '<viewNode xsi:type=.*?</viewNode>' in xml_ui_str ) as nodes, --number of nodes
     substring_regexpr( '<viewNode xsi:type="View:(.*?)" name="(.*?)">' in xml_ui_str occurrence 1 group 1) as first_nodes_type, --first node
     substring_regexpr( '<viewNode xsi:type="View:(.*?)" name="(.*?)">' in xml_ui_str occurrence 1 group 2) as first_nodes_name, --first node
-	occurrences_regexpr( '<element .*?</element>' in xml_ui_str ) as elem,
-	sizeof_xml_ui,
-	length(xml_ui_str) as sizeof_xml_ui_str
+    occurrences_regexpr( '<element .*?</element>' in xml_ui_str ) as elem,
+    sizeof_xml_ui,
+    length(xml_ui_str) as sizeof_xml_ui_str
 from hcpr
 where 1=1
 --  and hcprnm like 'Z%'  -- Narrow down early for performance
@@ -269,7 +270,7 @@ Some of your ADSO fields are missing from the output? When parsing the XML (Step
 
 When trying to retrieve the ADSO or Composite Provider XML definition, you may get a warning message about truncated output. To display the LOB in HANA cloud-SQL Console or in HANA Database Explorer (cloud, on-prem or VS Code extension), ensure that the LOB byte limit setting is sufficiently high to return the field content. For ADSO or Composite Providers definitions, 2MB should be enough.  
 
-> In Database Explorer, navigate to `Settings → SQL Console → Byte limit for Large Objects (LOBs)`
+> In Database Explorer, navigate to `Settings → SQL Console → Byte limit for Large Objects (LOBs)`  
 > In HANA Cloud HANA-tooling, navigate to your user icon (top right) →`settings → SQL Console`  
 {: .prompt-tip }
 
