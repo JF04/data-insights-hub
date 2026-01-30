@@ -29,5 +29,6 @@ assets/js/dist
 
 # Custom
 archive/
+local/
 .vscode/
 _posts/*___*.md

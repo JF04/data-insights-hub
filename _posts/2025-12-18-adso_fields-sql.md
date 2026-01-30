@@ -1,5 +1,5 @@
 ---
-title: Query ADSO Field Metadata from XML_UI Using SQL (BW on HANA & BW/4HANA)
+title: Query ADSO fields Metadata using SQL (BW on HANA & BW/4HANA)
 categories: [HANA,SQL]
 tags: [adso,blob,hcpr,RSOADSO,RSOHCPR,XML_UI,SAP,HANA,BW]
 toc: true
@@ -8,10 +8,9 @@ pin: false
 image:
   path: /assets/img/2025-12-18-pv-v2.jpg
   alt: "Binary Data"
-description: Extract ADSO metadata stored as XML in BLOB fields using SQL on SAP HANA—no ABAP required.
+description: Extract ADSO metadata stored as XML in BLOB field using SQL on SAP HANA—no ABAP required.
 excerpt: Extracting metadata from SAP BW ADSO objects stored as XML in BLOB fields at scale is challenging. These practical SQL queries convert XML_UI to text and parse key field properties so you can analyze ADSO definitions directly in HANA.
 ---
-
 
 # Query ADSO fields metadata through SQL
 
@@ -21,15 +20,7 @@ You'll run 2 queries:
 * ADSO-level inventory (XML size + rough field count)
 * Field-level extractor (one row per ADSO field with key attributes)  
 
-**End result:** Table of fields + key attributes that you can filter and export
-
-|ADSO|Field Name|InfoObject|Routine|Sid Determination|
-|-|-|-|-|-|
-|Z_ADSO1 |FIELD_1 |-|-|N _(no master data check, no reporting)_|
-|Z_ADSO1 |ZCHGDT |ZCHGDT|-|R _(check during reporting)_|
-|Z_ADSO1 |0MATERIAL |0MATERIAL|MATN1|S _(during load/activation)_|
-
-Unlike most BW objects, ADSOs store their definition as XML in a blob field. With a couple HANA function, you will convert it to text and extract key attributes in bulk directly in SQL, no ABAP required.  
+**End result:** Table of ADSO's fields + key attributes that you can filter and export
 
 **How:** convert blob -> text -> split elements -> extract attributes  
 
@@ -39,15 +30,13 @@ Unlike most BW objects, ADSOs store their definition as XML in a blob field. Wit
 
 ## Convert XML_UI (BLOB) into searchable text
 
-ADSO definitions are stored in RSOADSO-XML_UI as a blob, which is awkward to inspect directly. The trick is to convert it once per ADSO into a string, then use standard text/regex functions.  
+Unlike most BW objects, ADSOs store their definition as XML in a blob (_binary large object_) field. which is awkward to inspect directly. The trick is to convert it once per ADSO into a string, then use standard text/regex functions. With a couple HANA functions, you will convert it to text and extract key attributes in bulk directly in SQL, no ABAP required.  
 
 **Pattern:** `bintostr(to_varbinary(xml_ui))`
 * `TO_VARBINARY()` converts to _varbinary_ type (variable-length byte string) and prepares `bintostr()`
 * `BINTOSTR()` produces a searchable string
 
-With that in place, we'll run 2 queries:
-1. Inventory ADSOs (XML size + estimated field count)
-2. Extract fields (one row per `<element ...</element>` block) and parse properties
+With that in place, we'll jump to the queries.
 
 ## Inventory ADSOs and estimate XML size / field count
 Let's start with a simple query at the ADSO object level to:
@@ -66,13 +55,13 @@ with adso as (
         length(xml_ui) as sizeof_xml_ui
     from [bw_schema].rsoadso -- update with your BW schema name
     where objvers='A'    
---      and adsonm like 'Z%'  -- Narrow down early for performance
+    -- and adsonm like 'Z%'  -- Narrow down early for performance
 )
 select adsonm,
     xml_ui_str,
---	occurrences_regexpr( '<element .*?</element>' in xml_ui_str ) as adso_elems, -- count the XML blocks
-	occurrences_regexpr( 'AdsoElement' in xml_ui_str ) as adso_elems, -- count a string within the blocks
-	sizeof_xml_ui
+    -- occurrences_regexpr( '<element .*?</element>' in xml_ui_str ) as adso_elems, -- count the XML blocks
+    occurrences_regexpr( 'AdsoElement' in xml_ui_str ) as adso_elems, -- count a string within the blocks
+    sizeof_xml_ui
 from adso
 where 1=1
 --  and xml_ui_str like '%sidDeterminationMode="R"%' 
@@ -116,19 +105,19 @@ with adso as (
         bintostr(to_varbinary(xml_ui)) as xml_ui_str
     from [bw_schema].rsoadso -- update with your BW schema name
     where objvers='A'    
---      and adsonm LIKE '%%'   -- filter early for performance
+    -- and adsonm LIKE '%%'   -- filter early for performance
 ),
 
 adso_fields as (
 -- 2) Explode <element> blocks into rows
 select
-	adsonm,
-	element_number,
-	substring_regexpr('<element .*?</element>' in xml_ui_str occurrence element_number) elem
+    adsonm,
+    element_number,
+    substring_regexpr('<element .*?</element>' in xml_ui_str occurrence element_number) elem
 from adso,
-	series_generate_integer(1,1,600) -- update 600 - set this to > max field count of your largest ADSO (see Query #1 to estimate)
+    series_generate_integer(1,1,600) -- update 600 - set this to > max field count of your largest ADSO (see Query #1 to estimate)
 where 
-	substring_regexpr('<element .*?</element>' in xml_ui_str occurrence element_number) is not null
+    substring_regexpr('<element .*?</element>' in xml_ui_str occurrence element_number) is not null
 )
 
 -- 3) Extract attributes from each element
@@ -144,8 +133,8 @@ select
     coalesce(substring_regexpr('conversionRoutine="([^"]+)' in elem group 1), '') as routine
 from adso_fields
 where 1=1
---  and elem like_regexpr 'conversionRoutine="([^"]+)' -- filter on fields containing a conversion routine
---  and elem like_regexpr '' -- add your custom regex filter
+    -- and elem like_regexpr 'conversionRoutine="([^"]+)' -- filter on fields containing a conversion routine
+    -- and elem like_regexpr '' -- add your custom regex filter
 order by adsonm, element_number
 ;
 
@@ -159,7 +148,7 @@ order by adsonm, element_number
 
 * `adsonm`: ADSO object technical name
 * `elem_name`: Field name
-* `dimension`: Dimension
+* `dimension`: Dimension (or Group)
 * `infoobject`: InfoObject mapping (if present)
 * `sid_determination`: Master data check / SID-related behavior
 * `object_type`: InfoObject type  (if present)
@@ -182,7 +171,7 @@ SID / Master Data Check values:
 {: .prompt-info }
 
 **Try and explore**  
-* Find all conversion routines used in ADSOs
+* Find conversion routines used in ADSOs
 * Detect fields with Master Data Check mode = N or R
 * Explore these additional field properties:
     * `fieldName`: database object field name for infoObjects
@@ -215,10 +204,10 @@ SID / Master Data Check values:
 **Getting started with Composite Providers (HCPR): same trick, heavier XML**  
 Composite Providers store a much richer model in `RSOHCPR-XML_UI`: joins, unions, projections, mappings, and more. 
 
-You can get started by inspecting the XML structure and counting the nodes.
+You can get started by inspecting the XML structure and counting the entities.
 
 ```sql
--- Goal: Inventory Composite Providers (HCPR) and count nodes (union, joins)
+-- Goal: Inventory Composite Providers (HCPR) and count entities
 with hcpr as (
     select
         hcprnm,
@@ -231,9 +220,10 @@ with hcpr as (
 
 select hcprnm,
     xml_ui_str,
-    occurrences_regexpr( '<viewNode xsi:type=.*?</viewNode>' in xml_ui_str ) as nodes, --number of nodes
+    occurrences_regexpr( '<viewNode xsi:type=.*?<entity>.*?</viewNode>' in xml_ui_str ) as entities, --number of entities
+    substring_regexpr('defaultNode="#///([^"]+)' in xml_ui_str group 1) as default_node, --default node
     substring_regexpr( '<viewNode xsi:type="View:(.*?)" name="(.*?)">' in xml_ui_str occurrence 1 group 1) as first_nodes_type, --first node
-    substring_regexpr( '<viewNode xsi:type="View:(.*?)" name="(.*?)">' in xml_ui_str occurrence 1 group 2) as first_nodes_name, --first node
+    substring_regexpr( '<viewNode xsi:type="View:(.*?)" name="(.*?)">' in xml_ui_str occurrence 1 group 2) as first_nodes_name, --second node
     occurrences_regexpr( '<element .*?</element>' in xml_ui_str ) as elem,
     sizeof_xml_ui,
     length(xml_ui_str) as sizeof_xml_ui_str
